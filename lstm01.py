@@ -11,18 +11,23 @@ import matplotlib.pyplot as plt
 # details. The data preparation part comes directly from his example
 
 # Parameters
-# n_pred (number of steps we want to predict) should be equal to output_size ?
+# n_pred must be equal to output_size
 n_steps = 5
 n_pred = 1
-bs = 32
+bs = 64
 max_epochs = 60
-hidden_size = 5
+hidden_size = 256
 output_size = 1
 input_size = 1
-num_layers = 10
-lr = 0.003
+num_layers = 2
+lr = 0.001
 
-# Should hidden size = the size of the sequence ???
+# Let's define the device we are going to work on
+
+if torch.cuda.is_available():
+    device = torch.device('cuda')
+else:
+    device = torch.device('cpu')
 
 # Data preparation 
 
@@ -84,7 +89,7 @@ class MyLSTM(nn.Module):
         result = self.linear(result)
         return result
 
-model = MyLSTM(input_size, hidden_size, num_layers, output_size)
+model = MyLSTM(input_size, hidden_size, num_layers, output_size).to(device)
 
 criterion = nn.MSELoss()
 optim = optim.Adam(model.parameters(), lr=lr)
@@ -94,8 +99,9 @@ total_steps = len(train_loader)
 lossdata = []
 for epoch in range(max_epochs):
     for i, (X, y) in enumerate(train_loader):
-        X = torch.reshape(X,(X.size(0), X.size(1), input_size))
+        X = torch.reshape(X,(X.size(0), X.size(1), input_size)).to(device)
         out = model(X)
+        y = y.to(device)
         # print(out)
         # print('out shape: ', out.shape)
         # print('y shape: ', y.shape)
@@ -122,5 +128,3 @@ with torch.no_grad():
             print('X = ', X)
             print('Prediction = ', out)
             print('Ground Truth = ', y)
-
-# Does not work so far, is this because of the initialization of h0 and c0 ???
