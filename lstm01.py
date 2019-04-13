@@ -13,11 +13,11 @@ import matplotlib.pyplot as plt
 # Parameters
 # n_pred must be equal to output_size
 n_steps = 5
-n_pred = 2
+n_pred = 1
 bs = 64
 max_epochs = 100
 hidden_size = 256
-output_size = 2
+output_size = 1
 input_size = 1
 num_layers = 5
 lr = 0.0002
@@ -69,15 +69,18 @@ class MyLSTM(nn.Module):
         # Output of LSTM layers will be [batch_size, seq_length, input_size]
         self.linear = nn.Linear(hidden_size, output_size)
 
-    def forward(self, input):
+    def forward(self, input, mode=Null):
         # Initialize initial state for h0 and c0
         # input.size(0) actually corresponds to the batch size here
         h0 = torch.zeros(self.num_layers, input.size(0), self.hidden_size).to(device)
         c0 = torch.zeros(self.num_layers, input.size(0), self.hidden_size).to(device)
 
         # Forward propagate the input into the LSTM
-        result, _ = self.lstm(input, (c0, h0))
-        result = result[:,-1,:]
+        h, c = self.lstm(input, (c0, h0))
+        if mode == 'pred':
+            print('Input: ', input)
+            print('Input shape: ', input.shape)
+        result = h[:,-1,:]
         result = self.linear(result)
         return result
 
@@ -91,7 +94,7 @@ lossdata = []
 for epoch in range(max_epochs):
     for i, (X, y) in enumerate(train_loader):
         X = torch.reshape(X,(X.size(0), X.size(1), input_size)).to(device)
-        out = model(X)
+        out = model(X, mode=Null)
         y = y.to(device)
 
         loss = criterion(out, y)
@@ -111,8 +114,8 @@ model.eval()
 with torch.no_grad():
     for i, (X, y) in enumerate(valid_loader):
         X = torch.reshape(X, (X.size(0), X.size(1), input_size)).to(device)
-        out = model(X).detach()
-        if i % 50 == 0:
-            print('X = ', X)
-            print('Prediction = ', out)
-            print('Ground Truth = ', y)
+        out = model(X, mode='pred').detach()
+        # if i % 50 == 0:
+        #     print('X = ', X)
+        #     print('Prediction = ', out)
+        #     print('Ground Truth = ', y)
