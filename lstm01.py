@@ -111,7 +111,7 @@ model.eval()
 with torch.no_grad():
     for i, (X, y) in enumerate(valid_loader):
         X = torch.reshape(X, (X.size(0), X.size(1), input_size)).to(device)
-        out = model(X)
+        out = model(X).detach()
         if i % 50 == 0:
             print('X = ', X)
             print('Prediction = ', out)
