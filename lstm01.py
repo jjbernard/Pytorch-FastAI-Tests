@@ -13,11 +13,11 @@ import matplotlib.pyplot as plt
 # Parameters
 # n_pred must be equal to output_size
 n_steps = 5
-n_pred = 1
+n_pred = 2
 bs = 64
 max_epochs = 100
 hidden_size = 256
-output_size = 1
+output_size = 2
 input_size = 1
 num_layers = 5
 lr = 0.0002
@@ -75,14 +75,9 @@ class MyLSTM(nn.Module):
         h0 = torch.zeros(self.num_layers, input.size(0), self.hidden_size).to(device)
         c0 = torch.zeros(self.num_layers, input.size(0), self.hidden_size).to(device)
 
-        # print('h0 shape: ', h0.shape)
-        # print('c0 shape: ', c0.shape)
-        # print('input shape: ', input.shape)
-
         # Forward propagate the input into the LSTM
         result, _ = self.lstm(input, (c0, h0))
         result = result[:,-1,:]
-        # print('result shape: ', result.shape)
         result = self.linear(result)
         return result
 
@@ -91,8 +86,6 @@ model = MyLSTM(input_size, hidden_size, num_layers, output_size).to(device)
 criterion = nn.MSELoss()
 optim = optim.Adam(model.parameters(), lr=lr)
 
-total_steps = len(train_loader)
-
 model.train()
 lossdata = []
 for epoch in range(max_epochs):
@@ -100,9 +93,7 @@ for epoch in range(max_epochs):
         X = torch.reshape(X,(X.size(0), X.size(1), input_size)).to(device)
         out = model(X)
         y = y.to(device)
-        # print(out)
-        # print('out shape: ', out.shape)
-        # print('y shape: ', y.shape)
+
         loss = criterion(out, y)
 
         optim.zero_grad()
