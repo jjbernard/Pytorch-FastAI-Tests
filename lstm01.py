@@ -20,14 +20,11 @@ hidden_size = 256
 output_size = 1
 input_size = 1
 num_layers = 5
-lr = 0.0001
+lr = 0.0002
 
 # Let's define the device we are going to work on
 
-if torch.cuda.is_available():
-    device = torch.device('cuda')
-else:
-    device = torch.device('cpu')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Data preparation 
 
@@ -96,9 +93,9 @@ optim = optim.Adam(model.parameters(), lr=lr)
 
 total_steps = len(train_loader)
 
+model.train()
 lossdata = []
 for epoch in range(max_epochs):
-    model.train()
     for i, (X, y) in enumerate(train_loader):
         X = torch.reshape(X,(X.size(0), X.size(1), input_size)).to(device)
         out = model(X)
