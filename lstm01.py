@@ -15,12 +15,12 @@ import matplotlib.pyplot as plt
 n_steps = 5
 n_pred = 1
 bs = 64
-max_epochs = 60
+max_epochs = 100
 hidden_size = 256
 output_size = 1
 input_size = 1
-num_layers = 2
-lr = 0.001
+num_layers = 5
+lr = 0.0001
 
 # Let's define the device we are going to work on
 
@@ -114,8 +114,6 @@ for epoch in range(max_epochs):
         if i % 100 == 0:
             lossdata.append([epoch+1,loss.item()])
             print('Epoch = {}/{}, Loss: {:.4f}'.format(epoch+1, max_epochs, loss.item()))
-            # print('y = ', y)
-            # print('out = ', out)
 
 plt.plot(lossdata)
 plt.show()
