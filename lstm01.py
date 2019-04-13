@@ -43,7 +43,7 @@ def split_sequence(sequence, n_steps, n_pred):
         y.append(seq_y)
     return torch.tensor(X).float(), torch.tensor(y).float()
 
-seq = list(range(1000))
+seq = list(range(10000))
 
 X, y = split_sequence(seq, n_steps, n_pred)
 
