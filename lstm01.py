@@ -12,14 +12,14 @@ import matplotlib.pyplot as plt
 
 # Parameters
 # n_pred must be equal to output_size
-n_steps = 5
+n_steps = 20
 n_pred = 1
 bs = 64
 max_epochs = 100
 hidden_size = 256
 output_size = 1
 input_size = 1
-num_layers = 5
+num_layers = 10
 lr = 0.0002
 
 # Let's define the device we are going to work on
