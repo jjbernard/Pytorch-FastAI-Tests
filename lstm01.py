@@ -75,8 +75,8 @@ class MyLSTM(nn.Module):
     def forward(self, input):
         # Initialize initial state for h0 and c0
         # input.size(0) actually corresponds to the batch size here
-        h0 = torch.zeros(self.num_layers, input.size(0), self.hidden_size)
-        c0 = torch.zeros(self.num_layers, input.size(0), self.hidden_size)
+        h0 = torch.zeros(self.num_layers, input.size(0), self.hidden_size).to(device)
+        c0 = torch.zeros(self.num_layers, input.size(0), self.hidden_size).to(device)
 
         # print('h0 shape: ', h0.shape)
         # print('c0 shape: ', c0.shape)
