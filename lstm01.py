@@ -98,6 +98,7 @@ total_steps = len(train_loader)
 
 lossdata = []
 for epoch in range(max_epochs):
+    model.train()
     for i, (X, y) in enumerate(train_loader):
         X = torch.reshape(X,(X.size(0), X.size(1), input_size)).to(device)
         out = model(X)
@@ -119,6 +120,7 @@ plt.plot(lossdata)
 plt.show()
 
 with torch.no_grad():
+    model.eval()
     for i, (X, y) in enumerate(valid_loader):
         X = torch.reshape(X, (X.size(0), X.size(1), input_size)).to(device)
         out = model(X)
