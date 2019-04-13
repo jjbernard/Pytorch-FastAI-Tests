@@ -69,7 +69,7 @@ class MyLSTM(nn.Module):
         # Output of LSTM layers will be [batch_size, seq_length, input_size]
         self.linear = nn.Linear(hidden_size, output_size)
 
-    def forward(self, input, mode=Null):
+    def forward(self, input, mode='NA'):
         # Initialize initial state for h0 and c0
         # input.size(0) actually corresponds to the batch size here
         h0 = torch.zeros(self.num_layers, input.size(0), self.hidden_size).to(device)
@@ -94,7 +94,7 @@ lossdata = []
 for epoch in range(max_epochs):
     for i, (X, y) in enumerate(train_loader):
         X = torch.reshape(X,(X.size(0), X.size(1), input_size)).to(device)
-        out = model(X, mode=Null)
+        out = model(X, mode='NA')
         y = y.to(device)
 
         loss = criterion(out, y)
