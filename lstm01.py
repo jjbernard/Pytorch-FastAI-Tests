@@ -80,6 +80,7 @@ class MyLSTM(nn.Module):
         if mode == 'pred':
             print('Input: ', input)
             print('Input shape: ', input.shape)
+            print('Hidden result: ', h)
         result = h[:,-1,:]
         result = self.linear(result)
         return result
