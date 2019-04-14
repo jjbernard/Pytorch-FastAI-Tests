@@ -131,6 +131,7 @@ with torch.no_grad():
     for i, (X, y) in enumerate(valid_loader):
         if X.size(0) == bs_valid:
             validitems += len(X)
+            y = y.to(device)
             X = torch.reshape(X, (X.size(0), X.size(1), input_size)).to(device)
             prediction = model(X).detach()
             loss = criterion(prediction, y)
