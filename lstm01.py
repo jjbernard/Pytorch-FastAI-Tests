@@ -20,7 +20,7 @@ hidden_size = 128
 output_size = 1
 input_size = 1
 num_layers = 10
-lr = 1e-3
+lr = 1e-4
 bs_valid = 2
 
 # Let's define the device we are going to work on
