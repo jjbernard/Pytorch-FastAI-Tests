@@ -135,7 +135,7 @@ with torch.no_grad():
             X = torch.reshape(X, (X.size(0), X.size(1), input_size)).to(device)
             prediction = model(X).detach()
             loss = criterion(prediction, y)
-            lossvalid.append(loss.item)
+            lossvalid.append(loss.item())
             print('Validation loss = ', loss.item())
         else:
             continue
