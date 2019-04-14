@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 n_steps = 3
 n_pred = 1
 bs = 32
-max_epochs = 50
+max_epochs = 200
 hidden_size = 128
 output_size = 1
 input_size = 1
@@ -70,7 +70,6 @@ class MyLSTM(nn.Module):
         self.bn = nn.BatchNorm1d(self.hidden_size)
         # Output of LSTM layers will be [batch_size, seq_length, input_size]
         self.linear = nn.Linear(hidden_size, output_size)
-        self.hidden = False
 
     def forward(self, input):
         # Initialize initial state for h0 and c0
