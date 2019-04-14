@@ -19,7 +19,7 @@ max_epochs = 50
 hidden_size = 128
 output_size = 1
 input_size = 1
-num_layers = 50
+num_layers = 10
 lr = 1e-3
 bs_valid = 2
 
