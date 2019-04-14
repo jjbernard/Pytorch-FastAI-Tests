@@ -12,14 +12,14 @@ import matplotlib.pyplot as plt
 
 # Parameters
 # n_pred must be equal to output_size
-n_steps = 3
+n_steps = 10
 n_pred = 1
-bs = 128
+bs = 64
 max_epochs = 10
-hidden_size = 256
+hidden_size = 128
 output_size = 1
 input_size = 1
-num_layers = 100
+num_layers = 50
 lr = 5e-5
 bs_valid = 2
 
@@ -66,7 +66,7 @@ class MyLSTM(nn.Module):
         self.num_layers = num_layers
         self.output_size = output_size
         # input_size is equal to the number of features
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, dropout = 0.5, batch_first=True)
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, dropout = 0.7, batch_first=True)
         # Output of LSTM layers will be [batch_size, seq_length, input_size]
         self.linear = nn.Linear(hidden_size, output_size)
         self.hidden = False
@@ -100,7 +100,7 @@ class MyLSTM(nn.Module):
 model = MyLSTM(input_size, hidden_size, num_layers, output_size).to(device)
 
 criterion = nn.MSELoss()
-optim = optim.Adam(model.parameters(), weight_decay=0.2, lr=lr)
+optim = optim.Adam(model.parameters(), weight_decay=0.4, lr=lr)
 
 lossdata = []
 for epoch in range(max_epochs):
