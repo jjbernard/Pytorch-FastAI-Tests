@@ -66,7 +66,7 @@ class MyLSTM(nn.Module):
         self.num_layers = num_layers
         self.output_size = output_size
         # input_size is equal to the number of features
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, dropout = 0.7, batch_first=True)
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, dropout = 0.4, batch_first=True)
         # Output of LSTM layers will be [batch_size, seq_length, input_size]
         self.linear = nn.Linear(hidden_size, output_size)
         self.hidden = False
