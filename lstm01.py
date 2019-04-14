@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 # n_pred must be equal to output_size
 n_steps = 3
 n_pred = 1
-bs = 2
+bs = 128
 max_epochs = 1
 hidden_size = 256
 output_size = 1
