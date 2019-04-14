@@ -66,14 +66,11 @@ class MyLSTM(nn.Module):
         self.num_layers = num_layers
         self.output_size = output_size
         # input_size is equal to the number of features
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, dropout = 0.4, batch_first=True)
+        self.lstm = nn.LSTM(input_size, self.hidden_size, num_layers, dropout = 0.4, batch_first=True)
+        self.bn = nn.BatchNorm1d(self.hidden_size)
         # Output of LSTM layers will be [batch_size, seq_length, input_size]
         self.linear = nn.Linear(hidden_size, output_size)
         self.hidden = False
-
-    # def init_hidden_state(self, bs):
-    #     return (torch.randn(self.num_layers, self.bs, self.hidden_size).to(device),
-    #             torch.randn(self.num_layers, self.bs, self.hidden_size).to(device))
 
     def forward(self, input):
         # Initialize initial state for h0 and c0
@@ -82,19 +79,13 @@ class MyLSTM(nn.Module):
         # c0 = torch.zeros(self.num_layers, input.size(0), self.hidden_size).to(device)
 
         # Forward propagate the input into the LSTM
-        # if self.hidden:
-        #     out, self.hidden = self.lstm(input, self.hidden)
-        # else:
-        #     out, self.hidden = self.lstm(input)
         out, _ = self.lstm(input)
 
         # We only need the last output of the sequence
         result = out[:,-1,:]
 
         # Apply a linear transformation to get the output we need
-        result = self.linear(result)
-        # h, c = self.hidden
-        # self.hidden = (h.detach(), c.detach())
+        result = self.linear(self.bn(result))
         return result
 
 model = MyLSTM(input_size, hidden_size, num_layers, output_size).to(device)
