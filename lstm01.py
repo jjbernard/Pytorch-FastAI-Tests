@@ -15,12 +15,12 @@ import matplotlib.pyplot as plt
 n_steps = 3
 n_pred = 1
 bs = 128
-max_epochs = 1
+max_epochs = 10
 hidden_size = 256
 output_size = 1
 input_size = 1
 num_layers = 100
-lr = 1e-5
+lr = 5e-5
 bs_valid = 2
 
 # Let's define the device we are going to work on
@@ -136,7 +136,7 @@ with torch.no_grad():
             prediction = model(X).detach()
             loss = criterion(prediction, y)
             lossvalid.append(loss.item())
-            print('Validation loss = ', loss.item())
+            # print('Validation loss = ', loss.item())
         else:
             continue
 
