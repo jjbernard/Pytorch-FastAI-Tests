@@ -12,15 +12,15 @@ import matplotlib.pyplot as plt
 
 # Parameters
 # n_pred must be equal to output_size
-n_steps = 20
+n_steps = 5
 n_pred = 1
-bs = 64
-max_epochs = 100
-hidden_size = 256
+bs = 16
+max_epochs = 300
+hidden_size = 128
 output_size = 1
 input_size = 1
-num_layers = 10
-lr = 0.0002
+num_layers = 3
+lr = 2e-5
 
 # Let's define the device we are going to work on
 
@@ -29,8 +29,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # Data preparation 
 
 def split_sequence(sequence, n_steps, n_pred):
-    #X, y = [], []
-    X, y = list(), list()
+    X, y = [], []
     for i in range(len(sequence)):
         # look for the end of this pattern
         end_idx = i + n_steps
@@ -38,12 +37,12 @@ def split_sequence(sequence, n_steps, n_pred):
         if end_idx > len(sequence) - n_pred - 1:
             break
         # Prepare inputs and outputs of the sequence
-        seq_X, seq_y = sequence[i:end_idx], sequence[end_idx+1:end_idx+n_pred+1]
+        seq_X, seq_y = sequence[i:end_idx], sequence[end_idx:end_idx+n_pred]
         X.append(seq_X)
         y.append(seq_y)
     return torch.tensor(X).float(), torch.tensor(y).float()
 
-seq = list(range(10000))
+seq = list(range(500))
 
 X, y = split_sequence(seq, n_steps, n_pred)
 
@@ -59,64 +58,82 @@ valid_loader = DataLoader(valid, batch_size=2, shuffle=False)
 # Let's now define our LSTM Model
 
 class MyLSTM(nn.Module):
+    
     def __init__(self, input_size, hidden_size, num_layers, output_size):
         super(MyLSTM,self).__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.output_size = output_size
+        self.bs = bs
         # input_size is equal to the number of features
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
         # Output of LSTM layers will be [batch_size, seq_length, input_size]
         self.linear = nn.Linear(hidden_size, output_size)
+        # self.hidden = self.init_hidden_state(self.bs)
+        self.hidden = False
 
-    def forward(self, input, mode='NA'):
+    # def init_hidden_state(self, bs):
+    #     return (torch.randn(self.num_layers, self.bs, self.hidden_size).to(device),
+    #             torch.randn(self.num_layers, self.bs, self.hidden_size).to(device))
+
+    def forward(self, input):
         # Initialize initial state for h0 and c0
         # input.size(0) actually corresponds to the batch size here
-        h0 = torch.zeros(self.num_layers, input.size(0), self.hidden_size).to(device)
-        c0 = torch.zeros(self.num_layers, input.size(0), self.hidden_size).to(device)
+        # h0 = torch.zeros(self.num_layers, input.size(0), self.hidden_size).to(device)
+        # c0 = torch.zeros(self.num_layers, input.size(0), self.hidden_size).to(device)
 
         # Forward propagate the input into the LSTM
-        h, c = self.lstm(input, (c0, h0))
-        if mode == 'pred':
-            print('Input: ', input)
-            print('Input shape: ', input.shape)
-            print('Hidden result: ', h)
-        result = h[:,-1,:]
+        if self.hidden:
+            out, self.hidden = self.lstm(input, self.hidden)
+        else:
+            out, self.hidden = self.lstm(input)
+
+        # We only need the last output of the sequence
+        result = out[:,-1,:]
+
+        # Apply a linear transformation to get the output we need
         result = self.linear(result)
+        h, c = self.hidden
+        self.hidden = (h.detach(), c.detach())
+        # self.hidden = hidden.detach()
         return result
 
 model = MyLSTM(input_size, hidden_size, num_layers, output_size).to(device)
 
 criterion = nn.MSELoss()
-optim = optim.Adam(model.parameters(), lr=lr)
+optim = optim.Adam(model.parameters(), weight_decay=0.2, lr=lr)
 
-model.train()
 lossdata = []
 for epoch in range(max_epochs):
+    model.train()
     for i, (X, y) in enumerate(train_loader):
         X = torch.reshape(X,(X.size(0), X.size(1), input_size)).to(device)
-        out = model(X, mode='NA')
+        out = model(X)
         y = y.to(device)
-
         loss = criterion(out, y)
+
+        if i % 100 == 0:
+            print('Epoch = {}/{}, Training Loss: {:.4f}'.format(epoch+1, max_epochs, loss.item()))
+            lossdata.append([loss.item()])
 
         optim.zero_grad()
         loss.backward()
         optim.step()
 
-        if i % 100 == 0:
-            lossdata.append([epoch+1,loss.item()])
-            print('Epoch = {}/{}, Loss: {:.4f}'.format(epoch+1, max_epochs, loss.item()))
-
 plt.plot(lossdata)
 plt.show()
 
-model.eval()
 with torch.no_grad():
+    model.eval()
     for i, (X, y) in enumerate(valid_loader):
         X = torch.reshape(X, (X.size(0), X.size(1), input_size)).to(device)
-        out = model(X, mode='pred').detach()
-        # if i % 50 == 0:
-        #     print('X = ', X)
-        #     print('Prediction = ', out)
-        #     print('Ground Truth = ', y)
+        prediction = model(X).detach()
+        loss = criterion(prediction, y)
+        print('Validation loss = ', loss.item())
+
+def check_models_are_equal(model1, model2):
+    """ Check whether two models have identical parameters or not """
+    for mp1, mp2 in zip(model1.parameters(), model2.parameters()):
+        if mp1.data.ne(mp2.data).sum() >0:
+            return False
+    return True
