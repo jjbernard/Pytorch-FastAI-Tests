@@ -19,8 +19,8 @@ max_epochs = 300
 hidden_size = 128
 output_size = 1
 input_size = 1
-num_layers = 3
-lr = 2e-5
+num_layers = 5
+lr = 1e-5
 bs_valid = 2
 
 # Let's define the device we are going to work on
@@ -66,7 +66,7 @@ class MyLSTM(nn.Module):
         self.num_layers = num_layers
         self.output_size = output_size
         # input_size is equal to the number of features
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, dropout = 0.5, batch_first=True)
         # Output of LSTM layers will be [batch_size, seq_length, input_size]
         self.linear = nn.Linear(hidden_size, output_size)
         self.hidden = False
@@ -82,18 +82,19 @@ class MyLSTM(nn.Module):
         # c0 = torch.zeros(self.num_layers, input.size(0), self.hidden_size).to(device)
 
         # Forward propagate the input into the LSTM
-        if self.hidden:
-            out, self.hidden = self.lstm(input, self.hidden)
-        else:
-            out, self.hidden = self.lstm(input)
+        # if self.hidden:
+        #     out, self.hidden = self.lstm(input, self.hidden)
+        # else:
+        #     out, self.hidden = self.lstm(input)
+        out, _ = self.lstm(input)
 
         # We only need the last output of the sequence
         result = out[:,-1,:]
 
         # Apply a linear transformation to get the output we need
         result = self.linear(result)
-        h, c = self.hidden
-        self.hidden = (h.detach(), c.detach())
+        # h, c = self.hidden
+        # self.hidden = (h.detach(), c.detach())
         return result
 
 model = MyLSTM(input_size, hidden_size, num_layers, output_size).to(device)
@@ -124,16 +125,22 @@ for epoch in range(max_epochs):
 plt.plot(lossdata)
 plt.show()
 
+lossvalid, validitems = [], 0.0
 with torch.no_grad():
     model.eval()
     for i, (X, y) in enumerate(valid_loader):
         if X.size(0) == bs_valid:
+            validitems += len(X)
             X = torch.reshape(X, (X.size(0), X.size(1), input_size)).to(device)
             prediction = model(X).detach()
             loss = criterion(prediction, y)
+            lossvalid.append(loss.item)
             print('Validation loss = ', loss.item())
         else:
             continue
+
+totalloss = sum(lossvalid)
+print('Overall loss: {:.4f}'.format(totalloss/validitems))
 
 def check_models_are_equal(model1, model2):
     """ Check whether two models have identical parameters or not """
