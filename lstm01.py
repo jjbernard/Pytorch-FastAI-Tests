@@ -90,7 +90,8 @@ class MyLSTM(nn.Module):
 model = MyLSTM(input_size, hidden_size, num_layers, output_size).to(device)
 
 criterion = nn.MSELoss()
-optim = optim.Adam(model.parameters(), weight_decay=0.4, lr=lr)
+# optim = optim.Adam(model.parameters(), weight_decay=0.4, lr=lr)
+optim = optim.Adagrad(model.parameters(), lr = lr, lr_decay = 0.2, weight_decay=0.4)
 
 lossdata = []
 for epoch in range(max_epochs):
