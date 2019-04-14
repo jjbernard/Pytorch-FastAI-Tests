@@ -12,14 +12,14 @@ import matplotlib.pyplot as plt
 
 # Parameters
 # n_pred must be equal to output_size
-n_steps = 5
+n_steps = 3
 n_pred = 1
-bs = 16
-max_epochs = 300
-hidden_size = 128
+bs = 2
+max_epochs = 200
+hidden_size = 256
 output_size = 1
 input_size = 1
-num_layers = 5
+num_layers = 50
 lr = 1e-5
 bs_valid = 2
 
