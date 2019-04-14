@@ -20,7 +20,7 @@ hidden_size = 128
 output_size = 1
 input_size = 1
 num_layers = 10
-lr = 1e-4
+lr = 1e-3
 bs_valid = 2
 
 # Let's define the device we are going to work on
@@ -91,7 +91,7 @@ model = MyLSTM(input_size, hidden_size, num_layers, output_size).to(device)
 
 criterion = nn.MSELoss()
 # optim = optim.Adam(model.parameters(), weight_decay=0.4, lr=lr)
-optim = optim.Adagrad(model.parameters(), lr = lr, lr_decay = 0.2, weight_decay=0.4)
+optim = optim.Adagrad(model.parameters(), lr = lr, lr_decay = 0.1, weight_decay=0.1)
 
 lossdata = []
 for epoch in range(max_epochs):
