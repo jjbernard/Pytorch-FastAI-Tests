@@ -12,10 +12,10 @@ import matplotlib.pyplot as plt
 
 # Parameters
 # n_pred must be equal to output_size
-n_steps = 10
+n_steps = 3
 n_pred = 1
-bs = 64
-max_epochs = 10
+bs = 32
+max_epochs = 200
 hidden_size = 128
 output_size = 1
 input_size = 1
@@ -43,7 +43,7 @@ def split_sequence(sequence, n_steps, n_pred):
         y.append(seq_y)
     return torch.tensor(X).float(), torch.tensor(y).float()
 
-seq = list(range(500))
+seq = list(range(100))
 
 X, y = split_sequence(seq, n_steps, n_pred)
 
