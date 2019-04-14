@@ -15,11 +15,11 @@ import matplotlib.pyplot as plt
 n_steps = 3
 n_pred = 1
 bs = 2
-max_epochs = 200
+max_epochs = 1
 hidden_size = 256
 output_size = 1
 input_size = 1
-num_layers = 50
+num_layers = 100
 lr = 1e-5
 bs_valid = 2
 
