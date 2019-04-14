@@ -140,9 +140,11 @@ with torch.no_grad():
         else:
             continue
 
-totalloss = sum(lossvalid)
-globalloss = totalloss / validitems
-print('Overall loss: {:.4f}'.format(globalloss))
+# totalloss = sum(lossvalid)
+# globalloss = totalloss / validitems
+# print('Overall loss: {:.4f}'.format(globalloss))
+
+print(lossvalid)
 
 def check_models_are_equal(model1, model2):
     """ Check whether two models have identical parameters or not """
