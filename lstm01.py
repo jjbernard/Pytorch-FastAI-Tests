@@ -21,6 +21,7 @@ output_size = 1
 input_size = 1
 num_layers = 3
 lr = 2e-5
+bs_valid = 2
 
 # Let's define the device we are going to work on
 
@@ -53,7 +54,7 @@ train = TensorDataset(X[:idx], y[:idx])
 valid = TensorDataset(X[idx:], y[idx:])
 
 train_loader = DataLoader(train, batch_size=bs, shuffle=False)
-valid_loader = DataLoader(valid, batch_size=2, shuffle=False)
+valid_loader = DataLoader(valid, batch_size=bs_valid, shuffle=False)
 
 # Let's now define our LSTM Model
 
@@ -64,12 +65,10 @@ class MyLSTM(nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.output_size = output_size
-        self.bs = bs
         # input_size is equal to the number of features
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
         # Output of LSTM layers will be [batch_size, seq_length, input_size]
         self.linear = nn.Linear(hidden_size, output_size)
-        # self.hidden = self.init_hidden_state(self.bs)
         self.hidden = False
 
     # def init_hidden_state(self, bs):
@@ -95,7 +94,6 @@ class MyLSTM(nn.Module):
         result = self.linear(result)
         h, c = self.hidden
         self.hidden = (h.detach(), c.detach())
-        # self.hidden = hidden.detach()
         return result
 
 model = MyLSTM(input_size, hidden_size, num_layers, output_size).to(device)
@@ -107,18 +105,21 @@ lossdata = []
 for epoch in range(max_epochs):
     model.train()
     for i, (X, y) in enumerate(train_loader):
-        X = torch.reshape(X,(X.size(0), X.size(1), input_size)).to(device)
-        out = model(X)
-        y = y.to(device)
-        loss = criterion(out, y)
+        if X.size(0) == bs:
+            X = torch.reshape(X,(X.size(0), X.size(1), input_size)).to(device)
+            out = model(X)
+            y = y.to(device)
+            loss = criterion(out, y)
 
-        if i % 100 == 0:
-            print('Epoch = {}/{}, Training Loss: {:.4f}'.format(epoch+1, max_epochs, loss.item()))
-            lossdata.append([loss.item()])
+            if i % 100 == 0:
+                print('Epoch = {}/{}, Training Loss: {:.4f}'.format(epoch+1, max_epochs, loss.item()))
+                lossdata.append([loss.item()])
 
-        optim.zero_grad()
-        loss.backward()
-        optim.step()
+            optim.zero_grad()
+            loss.backward()
+            optim.step()
+        else:
+            continue
 
 plt.plot(lossdata)
 plt.show()
@@ -126,10 +127,13 @@ plt.show()
 with torch.no_grad():
     model.eval()
     for i, (X, y) in enumerate(valid_loader):
-        X = torch.reshape(X, (X.size(0), X.size(1), input_size)).to(device)
-        prediction = model(X).detach()
-        loss = criterion(prediction, y)
-        print('Validation loss = ', loss.item())
+        if X.size(0) == bs_valid:
+            X = torch.reshape(X, (X.size(0), X.size(1), input_size)).to(device)
+            prediction = model(X).detach()
+            loss = criterion(prediction, y)
+            print('Validation loss = ', loss.item())
+        else:
+            continue
 
 def check_models_are_equal(model1, model2):
     """ Check whether two models have identical parameters or not """
