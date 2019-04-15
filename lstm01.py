@@ -14,13 +14,13 @@ import matplotlib.pyplot as plt
 # n_pred must be equal to output_size
 n_steps = 3
 n_pred = 1
-bs = 32
-max_epochs = 200
+bs = 4
+max_epochs = 300
 hidden_size = 128
 output_size = 1
 input_size = 1
-num_layers = 10
-lr = 1e-3
+num_layers = 1
+lr = 1e-1
 bs_valid = 2
 
 # Let's define the device we are going to work on
@@ -43,7 +43,9 @@ def split_sequence(sequence, n_steps, n_pred):
         y.append(seq_y)
     return torch.tensor(X).float(), torch.tensor(y).float()
 
-seq = list(range(1000))
+# seq = list(range(1000))
+
+seq = [10,20,30,40,50,60,70,80,90,100]
 
 X, y = split_sequence(seq, n_steps, n_pred)
 
