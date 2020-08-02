@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.optim as optim
 
 
 class Net(nn.Module):
@@ -48,7 +49,49 @@ def main():
     print()
     print("Backprop with random gradients")
     net.zero_grad()
-    out.backward(torch.randn(1,10))
+    out.backward(torch.randn(1, 10))
+
+    print("Computing the loss function")
+    output = net(input)
+    print(f"output shape: {(output.size())}")
+
+    target = torch.randn(10)
+    print(f"target shape: {(target.size())}")
+    target = target.view(1, -1)
+    print(f"target shape after reshape: {(target.size())}")
+
+    print("setting the criterion as MSE loss")
+    criterion = nn.MSELoss()
+
+    loss = criterion(output, target)
+    print("computing the loss")
+    print(loss)
+
+    print("Let's follow a few step backwards from the loss")
+    print(loss.grad_fn)
+    print(loss.grad_fn.next_functions[0][0])
+    print(loss.grad_fn.next_functions[0][0].next_functions[0][0])
+
+    print()
+    print("BACKPROP")
+    print()
+    print("Zero in gradients to avoid accumulation")
+    net.zero_grad()
+    print('conv1.bias.grad before backward')
+    print(net.conv1.bias.grad)
+
+    loss.backward()
+    print('conv1.bias.grad after backward')
+    print(net.conv1.bias.grad)
+    print()
+
+    print("Updating the parameters. Creating an optimizer")
+    optimizer = optim.SGD(net.parameters(), lr=0.01)
+    optimizer.zero_grad()
+    output = net(input)
+    loss = criterion(output, target)
+    loss.backward()
+    optimizer.step()
 
 
 if __name__ == '__main__':
